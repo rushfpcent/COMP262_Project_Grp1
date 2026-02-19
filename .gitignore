@@ -1,2 +1,15 @@
 Phase 2/Data/AMAZON_FASHION.json
 Phase 2\Data\AMAZON_FASHION.json
+
+#Virtual environments
+.venv/
+venv/
+env/
+/backend/venv/
+
+#Python cache files
+__pycache__/
+*.pyc
+
+#Environment variables
+.env
