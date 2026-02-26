@@ -15,10 +15,16 @@ Usage as standalone to see output and generate figures:
 #Importing Libraries
 import os
 import re
+import string
 import pandas as pd
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
 
 #Importing loader function
 from loader import load_data
@@ -44,6 +50,38 @@ SENTIMENT_COLORS = {
     "Neutral" : "#DD8452",
     "Negative": "#C44E52",
 }
+STOP_WORDS = set(stopwords.words("english"))
+LEMMATIZER = WordNetLemmatizer()
+
+
+def basic_text_clean(text: str) -> str:
+    """
+    Light text cleaning safe for all lexicon pipelines.
+    """
+    if pd.isna(text):
+        return ""
+    text = str(text)
+    text = re.sub(r"http\S+|www\.\S+", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
+def preprocess_for_vader(text: str) -> str:
+    """
+    Minimal preprocessing for VADER, which relies on punctuation and casing cues.
+    """
+    return basic_text_clean(text)
+
+
+def preprocess_for_swn(text: str) -> list[str]:
+    """
+    Full linguistic normalization is required for lexicon matching in SentiWordNet pipelines.
+    """
+    cleaned = basic_text_clean(text).lower()
+    cleaned = cleaned.translate(str.maketrans("", "", string.punctuation))
+    tokens = nltk.word_tokenize(cleaned)
+    processed_tokens = [LEMMATIZER.lemmatize(token) for token in tokens if token not in STOP_WORDS]
+    return processed_tokens
 
 
 #================================================================
@@ -59,6 +97,7 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
     print(SEPARATOR)
 
     df = df.copy()
+    reviewer_ids = df["reviewerID"].copy() if "reviewerID" in df.columns else None
 
     #Sentiment Labeling
     def label_sentiment(rating):
@@ -90,6 +129,8 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
 
     existing_columns = [col for col in SELECTED_COLUMNS if col in df.columns]
     df = df[existing_columns].copy()
+    if reviewer_ids is not None:
+        df["reviewerID"] = reviewer_ids
 
     #Flagging outliers
     #Calculating lengths of new combined text
@@ -110,6 +151,20 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
     Q3 = wc.quantile(0.75)
     IQR = Q3 - Q1
     df["is_outlier"] = (wc < (Q1 - 1.5 * IQR)) | (wc > (Q3 + 1.5 * IQR))
+
+    print("\nApplying lexicon-specific preprocessing...")
+    before_dedup = len(df)
+    if "reviewerID" in df.columns:
+        df = df.drop_duplicates(subset=["reviewerID", "combined_text"]).reset_index(drop=True)
+        df = df.drop(columns=["reviewerID"])
+    else:
+        df = df.drop_duplicates(subset=["combined_text"]).reset_index(drop=True)
+    dropped_dupes = before_dedup - len(df)
+    if dropped_dupes > 0:
+        print(f"Dropped {dropped_dupes} duplicate reviews")
+
+    df["clean_vader"] = df["combined_text"].apply(preprocess_for_vader)
+    df["clean_swn"] = df["combined_text"].apply(preprocess_for_swn)
 
     print(f"\nPreprocessing complete. {len(df)} rows remaining.")
     print(SEPARATOR)
@@ -135,7 +190,7 @@ def generate_report(df: pd.DataFrame) -> None:
     for sentiment in ["Positive", "Neutral", "Negative"]:
         count = sentiment_counts.get(sentiment, 0)
         percent = sent_percentages.get(sentiment, 0.0)
-        bar = "█" * int(percent / 2)
+        bar = "â–ˆ" * int(percent / 2)
         print(f"   {sentiment:<10}: {count:>5,} ({percent:5.1f}%)  {bar}")
 
 
@@ -144,11 +199,11 @@ def generate_report(df: pd.DataFrame) -> None:
     print("Column Selection Rationale:")
 
     rationale = {
-        "combined_text" : "Primary model input — summary + reviewText merged into one field.",
-        "sentiment"     : "Model target — derived from star rating.",
-        "overall"       : "Raw star rating — kept for reference and validation.",
-        "verified"      : "Trust indicator — verified purchases likely have more genuine sentiment.",
-        "vote"          : "Community signal — higher voted reviews carry stronger sentiment.",
+        "combined_text" : "Primary model input â€” summary + reviewText merged into one field.",
+        "sentiment"     : "Model target â€” derived from star rating.",
+        "overall"       : "Raw star rating â€” kept for reference and validation.",
+        "verified"      : "Trust indicator â€” verified purchases likely have more genuine sentiment.",
+        "vote"          : "Community signal â€” higher voted reviews carry stronger sentiment.",
         "style_Size"    : "Fit/size complaints are a primary driver of negative fashion reviews.",
         "style_Color"   : "Sentiment can differ across product colour variants.",
     }
@@ -156,7 +211,7 @@ def generate_report(df: pd.DataFrame) -> None:
     for col in df.columns:
         reason = rationale.get(col, "Derived column")
         print(f"\n    {col}")
-        print(f"      → {reason}")
+        print(f"      â†’ {reason}")
 
     print(f"\nWorking DataFrame shape: {df.shape}")
 
@@ -181,8 +236,8 @@ def generate_report(df: pd.DataFrame) -> None:
         print(f"\n  {col_label}:")
         print(f"    Mean              : {mu:.1f}")
         print(f"    Std Dev           : {sig:.1f}")
-        print(f"    Z-score threshold : {z_thresh:.1f}  →  {z_out:,} outliers  ({z_out/len(col)*100:.2f}%)")
-        print(f"    IQR upper bound   : {iqr_upper:.1f}  →  {iqr_out:,} outliers  ({iqr_out/len(col)*100:.2f}%)")
+        print(f"    Z-score threshold : {z_thresh:.1f}  â†’  {z_out:,} outliers  ({z_out/len(col)*100:.2f}%)")
+        print(f"    IQR upper bound   : {iqr_upper:.1f}  â†’  {iqr_out:,} outliers  ({iqr_out/len(col)*100:.2f}%)")
 
     print(f"\n  Total flagged outliers (IQR, word count): {df['is_outlier'].sum():,}")
     print(f"\n  Outlier breakdown by sentiment:")
@@ -192,7 +247,7 @@ def generate_report(df: pd.DataFrame) -> None:
     top5 = df.nlargest(5, "wordCount")[["sentiment", "wordCount", "combined_text"]]
     for _, row in top5.iterrows():
         snippet = row["combined_text"][:80].replace("\n", " ")
-        print(f"    [{row['sentiment']:<10}]  {row['wordCount']:>4} words  |  {snippet}…")
+        print(f"    [{row['sentiment']:<10}]  {row['wordCount']:>4} words  |  {snippet}â€¦")
 
     #Final Summary
     print(f"\n{SEPARATOR}")
@@ -260,7 +315,7 @@ def generate_figures(df: pd.DataFrame) -> None:
         ax.set_xlabel("Sentiment")
         ax.set_ylabel("Word Count")
 
-    plt.suptitle("Outlier Detection — Word Count by Sentiment", fontsize=13, fontweight="bold")
+    plt.suptitle("Outlier Detection â€” Word Count by Sentiment", fontsize=13, fontweight="bold")
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_FOLDER, "2.02_word_count_by_sentiment.png"), dpi=150)
     plt.close()
