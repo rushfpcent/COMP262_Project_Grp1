@@ -351,20 +351,21 @@ def generate_figures(df: pd.DataFrame) -> None:
 #================================================================
 def sample_data(df: pd.DataFrame, n: int = 1000, random_seed: int = 1) -> pd.DataFrame:
     """
-    Randomly selects 1000s reviews from dataset
+    Randomly selects a subset of reviews (default 1000) from dataset
     """
-    print(f"\n{SEPARATOR}")
-    print(f"Sampling {n} random reviews.")
+    n_samples = min(n, len(df))
 
-    if len(df) < n:
-        print(f"Warning: Dataset has only {len{df}} rows. Returning all rows.")
+    if n_samples < n:
+        print(f"NOTE: Dataset has only {n_samples} rows. Returning all rows.")
+    else:
+        print(f"Sampling {n_samples} random reviews.")
+    
+    sampled_df = df.sample(n=n_samples, random_state=1).reset_index(drop=True)
 
-    sampled_df = df.sample(n=n, random_state=random_seed).reset_index(drop=True)
-
-    print(f"Sampled Dataframe shape: {sampled_df.shape}")
-    print(SEPARATOR)
+    print(f"Sampled DF shape: {sampled_df.shape}")
 
     return sampled_df
+    
 
 #================================================================
 #Entry for standalone execution
