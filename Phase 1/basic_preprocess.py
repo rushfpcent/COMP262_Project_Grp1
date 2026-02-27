@@ -346,6 +346,25 @@ def generate_figures(df: pd.DataFrame) -> None:
 
     print(f"\nAll figures saved to {os.path.abspath(FIGURES_FOLDER)}")
 
+#================================================================
+#Sampling
+#================================================================
+def sample_data(df: pd.DataFrame, n: int = 1000, random_seed: int = 1) -> pd.DataFrame:
+    """
+    Randomly selects 1000s reviews from dataset
+    """
+    print(f"\n{SEPARATOR}")
+    print(f"Sampling {n} random reviews.")
+
+    if len(df) < n:
+        print(f"Warning: Dataset has only {len{df}} rows. Returning all rows.")
+
+    sampled_df = df.sample(n=n, random_state=random_seed).reset_index(drop=True)
+
+    print(f"Sampled Dataframe shape: {sampled_df.shape}")
+    print(SEPARATOR)
+
+    return sampled_df
 
 #================================================================
 #Entry for standalone execution
