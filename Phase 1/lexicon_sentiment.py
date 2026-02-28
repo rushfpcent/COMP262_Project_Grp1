@@ -4,7 +4,7 @@ Includes evaluation and comparison metrics for Phase 1 of the COMP 262 Project.
 
 Usage:
     cd "COMP262_PROJECT_GRP1/Phase 1"
-    python vader_logic.py
+    python lexicon_sentiment.py
 """
 
 import pandas as pd
