@@ -199,11 +199,11 @@ def generate_report(df: pd.DataFrame) -> None:
     print("Column Selection Rationale:")
 
     rationale = {
-        "combined_text" : "Primary model input â€” summary + reviewText merged into one field.",
-        "sentiment"     : "Model target â€” derived from star rating.",
-        "overall"       : "Raw star rating â€” kept for reference and validation.",
-        "verified"      : "Trust indicator â€” verified purchases likely have more genuine sentiment.",
-        "vote"          : "Community signal â€” higher voted reviews carry stronger sentiment.",
+        "combined_text" : "Primary model input  summary + reviewText merged into one field.",
+        "sentiment"     : "Model target derived from star rating.",
+        "overall"       : "Raw star rating kept for reference and validation.",
+        "verified"      : "Trust indicator verified purchases likely have more genuine sentiment.",
+        "vote"          : "Community signal higher voted reviews carry stronger sentiment.",
         "style_Size"    : "Fit/size complaints are a primary driver of negative fashion reviews.",
         "style_Color"   : "Sentiment can differ across product colour variants.",
     }
@@ -211,7 +211,7 @@ def generate_report(df: pd.DataFrame) -> None:
     for col in df.columns:
         reason = rationale.get(col, "Derived column")
         print(f"\n    {col}")
-        print(f"      â†’ {reason}")
+        print(f"      {reason}")
 
     print(f"\nWorking DataFrame shape: {df.shape}")
 
@@ -236,8 +236,8 @@ def generate_report(df: pd.DataFrame) -> None:
         print(f"\n  {col_label}:")
         print(f"    Mean              : {mu:.1f}")
         print(f"    Std Dev           : {sig:.1f}")
-        print(f"    Z-score threshold : {z_thresh:.1f}  â†’  {z_out:,} outliers  ({z_out/len(col)*100:.2f}%)")
-        print(f"    IQR upper bound   : {iqr_upper:.1f}  â†’  {iqr_out:,} outliers  ({iqr_out/len(col)*100:.2f}%)")
+        print(f"    Z-score threshold : {z_thresh:.1f}    {z_out:,} outliers  ({z_out/len(col)*100:.2f}%)")
+        print(f"    IQR upper bound   : {iqr_upper:.1f}    {iqr_out:,} outliers  ({iqr_out/len(col)*100:.2f}%)")
 
     print(f"\n  Total flagged outliers (IQR, word count): {df['is_outlier'].sum():,}")
     print(f"\n  Outlier breakdown by sentiment:")

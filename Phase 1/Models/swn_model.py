@@ -6,9 +6,7 @@ from nltk.corpus import wordnet as wn
 #documentation
 #https://www.nltk.org/api/nltk.corpus.reader.sentiwordnet.html
 
-nltk.download('sentiwordnet', quiet=True)
-nltk.download('wordnet', quiet=True)
-nltk.download('averaged_perceptron_tagger_eng', quiet=True)
+nltk.download(['sentiwordnet', 'wordnet', 'averaged_perceptron_tagger', 'omw-1.4'], quiet=True)
 
 def get_wordnet_pos(treebank_tag: str) -> str:
     """

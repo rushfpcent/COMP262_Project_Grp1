@@ -11,6 +11,8 @@ import pandas as pd
 import nltk
 from nltk.corpus import sentiwordnet as swn
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from Models.swn_model import run_swn_model
+from Models.vader_model import run_vader
 from sklearn.metrics import classification_report, accuracy_score
 import os
 
@@ -23,70 +25,6 @@ from loader import load_data
 from basic_preprocess import preprocess_data, sample_data
 
 SEPARATOR = "=" * 64
-
-# ================================================================
-# Step 6a: VADER Model Implementation
-# ================================================================
-def run_vader(df):
-    """
-    VADER is chosen because it is specifically designed for social media 
-    and product reviews, handling emojis, capitalization, and punctuation well.
-    """
-    print(f"\n{SEPARATOR}")
-    print("Running VADER Lexicon analysis...")
-    
-    analyzer = SentimentIntensityAnalyzer()
-    
-    def get_vader_label(text):
-        # Ensure text is parsed as a string to avoid float errors
-        scores = analyzer.polarity_scores(str(text))
-        compound = scores['compound']
-        
-        # Compound score thresholds: Positive >= 0.05, Negative <= -0.05
-        if compound >= 0.05: 
-            return "Positive"
-        elif compound <= -0.05: 
-            return "Negative"
-        else: 
-            return "Neutral"
-
-    # Applying to the 'clean_vader' column which preserved punctuation/casing
-    df['vader_pred'] = df['clean_vader'].apply(get_vader_label)
-    print("  -> VADER predictions complete.")
-    return df
-
-# ================================================================
-# Step 6b: SentiWordNet Model Implementation
-# ================================================================
-def run_swn(df):
-    """
-    SentiWordNet is chosen for its deep linguistic coverage and 
-    synset-based scoring of lemmatized text.
-    """
-    print("Running SentiWordNet Lexicon analysis...")
-    
-    def get_swn_label(tokens):
-        sentiment_score = 0
-        # Check if tokens is a valid list (it should be from preprocess_for_swn)
-        if isinstance(tokens, list):
-            for token in tokens:
-                synsets = list(swn.senti_synsets(token))
-                if synsets:
-                    # Using the first (most common) synset score
-                    sentiment_score += synsets[0].pos_score() - synsets[0].neg_score()
-        
-        # Scoring logic
-        if sentiment_score > 0: 
-            return "Positive"
-        elif sentiment_score < 0: 
-            return "Negative"
-        else: 
-            return "Neutral"
-
-    # Applying to the 'clean_swn' column which contains lemmatized lists of tokens
-    df['swn_pred'] = df['clean_swn'].apply(get_swn_label)
-    print("  -> SentiWordNet predictions complete.")
-    return df
 
 # ================================================================
 # Step 7: Validation and Comparison Table
@@ -102,7 +40,7 @@ def generate_comparison(df):
     
     metrics = []
     
-    for model_name, pred_col in [("VADER", "vader_pred"), ("SentiWordNet", "swn_pred")]:
+    for model_name, pred_col in [("VADER", "vader_pred"), ("SentiWordNet", "swn_prediction")]:
         acc = accuracy_score(df['sentiment'], df[pred_col])
         metrics.append({
             "Model": model_name,
@@ -121,7 +59,7 @@ def generate_comparison(df):
     print(classification_report(df['sentiment'], df['vader_pred']))
     
     print("\nDetailed SentiWordNet Report:\n")
-    print(classification_report(df['sentiment'], df['swn_pred']))
+    print(classification_report(df['sentiment'], df['swn_prediction']))
     
     return comparison_table
 
@@ -140,11 +78,16 @@ if __name__ == "__main__":
     
     # 4. Run Both Lexicon Models
     df_results = run_vader(df_sampled)
-    df_results = run_swn(df_results)
-    
+    df_results = run_swn_model(df_sampled)
+
     # 5. Generate Step 7 Comparison Table and Detailed Reports
     generate_comparison(df_results)
     
+    print(df_results[['clean_swn', 'sentiment', 'swn_prediction', 'swn_score', 'vader_pred', 'vader_score']].head())
+
+    df_results.to_csv("phase1_lexicon_results.csv", index=False)
+    print("\nResults exported to 'phase1_lexicon_results.csv'")
+
     print(f"\n{SEPARATOR}")
     print("Phase 1 Modeling Complete!")
     print(SEPARATOR)
