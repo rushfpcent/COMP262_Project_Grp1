@@ -18,7 +18,6 @@ import os
 # Adding 'omw-1.4' as it is often required by newer versions of wordnet
 nltk.download(['sentiwordnet', 'wordnet', 'averaged_perceptron_tagger', 'punkt', 'omw-1.4'], quiet=True)
 
-# Importing your custom project modules
 from loader import load_data
 from basic_preprocess import preprocess_data, sample_data
 
