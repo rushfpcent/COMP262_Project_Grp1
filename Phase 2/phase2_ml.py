@@ -66,7 +66,7 @@ def train_and_evaluate_models(X_train, X_test, y_train, y_test):
 
 if __name__ == "__main__":
     current_dir = os.path.dirname(__file__)
-    FULL_DATA_PATH = os.path.join(current_dir, "Data", "AMAZON_FASHION.json")
+    FULL_DATA_PATH = os.path.join(current_dir, "Data", "AMAZON_FASHION_5.json")
     
     # 1. Get the prepared TF-IDF data from the previous script
     X_train_tfidf, X_test_tfidf, y_train, y_test, df_sample, X_test_text = prepare_phase2_data(FULL_DATA_PATH)
