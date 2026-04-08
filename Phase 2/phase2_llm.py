@@ -36,7 +36,6 @@ def run_llm_tasks(df):
 
     count = 1
     for idx, row in long_reviews.iterrows():
-        # FIX: Changed 'reviewText' to 'combined_text'
         text = row['combined_text']
         
         # Tokenize, Generate, Decode
@@ -57,7 +56,6 @@ def run_llm_tasks(df):
     print("TASK 17: CUSTOMER SERVICE RESPONSE")
     print("-" * 40)
     
-    # FIX: Changed 'reviewText' to 'combined_text'
     question_reviews = df[df['combined_text'].fillna("").str.contains(r'\?', regex=True)]
     
     if not question_reviews.empty:
