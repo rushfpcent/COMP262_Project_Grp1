@@ -13,7 +13,7 @@ import numpy as np
 import os
 
 #Defining data path
-DATA_PATH = os.path.join(os.path.dirname(__file__), "Data", "AMAZON_FASHION_5.json")
+DATA_PATH = os.path.join(os.path.dirname(__file__), "Data", "AMAZON_FASHION.json")
 
 def load_data(path: str = DATA_PATH) -> pd.DataFrame:
     """

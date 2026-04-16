@@ -84,7 +84,7 @@ def run_llm_tasks(df):
 
 if __name__ == "__main__":
     current_dir = os.path.dirname(__file__)
-    FULL_DATA_PATH = os.path.join(current_dir, "Data", "AMAZON_FASHION_5.json")
+    FULL_DATA_PATH = os.path.join(current_dir, "Data", "AMAZON_FASHION.json")
     
     # Load our Phase 2 dataset
     _, _, _, _, df_sample, _ = prepare_phase2_data(FULL_DATA_PATH)

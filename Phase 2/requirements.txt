@@ -1,0 +1,11 @@
+pandas
+numpy
+matplotlib
+scikit-learn
+seaborn
+nltk
+vaderSentiment
+
+# Additional libraries for Phase 2
+torch
+transformers

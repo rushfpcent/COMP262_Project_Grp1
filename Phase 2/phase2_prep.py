@@ -58,7 +58,7 @@ def prepare_phase2_data(file_path):
 if __name__ == "__main__":
     current_dir = os.path.dirname(__file__)
     # Pointed directly to your 5-core file
-    FULL_DATA_PATH = os.path.join(current_dir, "Data", "AMAZON_FASHION_5.json")
+    FULL_DATA_PATH = os.path.join(current_dir, "Data", "AMAZON_FASHION.json")
     
     # Run the pipeline
     X_train, X_test, y_train, y_test, df_phase2, test_text = prepare_phase2_data(FULL_DATA_PATH)
