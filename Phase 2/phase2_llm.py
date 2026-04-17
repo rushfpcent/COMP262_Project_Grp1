@@ -17,7 +17,7 @@ def run_llm_tasks(df):
     print(f"Running models locally on: {device.upper()}")
 
     # ================================================================
-    # TASK 16: Summarize 10 long reviews (Report the first 2)
+    # TASK 16: Summarize 10 long reviews 
     # ================================================================
     print("\n" + "-"*40)
     print("TASK 16: LLM SUMMARIZATION")

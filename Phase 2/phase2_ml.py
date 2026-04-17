@@ -75,5 +75,5 @@ if __name__ == "__main__":
     lr_model, nb_model, lr_preds, nb_preds = train_and_evaluate_models(X_train_tfidf, X_test_tfidf, y_train, y_test)
     
     print(f"\n{SEPARATOR}")
-    print("Phase 2 ML Training Complete! Copy these metrics into your Word Report.")
+    print("Phase 2 ML Training Complete!")
     print(SEPARATOR)
