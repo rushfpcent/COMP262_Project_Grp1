@@ -40,7 +40,7 @@ def run_llm_tasks(df):
         
         # Tokenize, Generate, Decode
         inputs = sum_tokenizer([text], max_length=1024, return_tensors="pt", truncation=True).to(device)
-        summary_ids = sum_model.generate(inputs["input_ids"], max_length=65, min_length=30, num_beams=4, early_stopping=True)
+        summary_ids = sum_model.generate(inputs["input_ids"], max_new_tokens=80, min_new_tokens=20, num_beams=6, length_penalty=2.0, no_repeat_ngram_size=3, early_stopping=True)
         summary_text = sum_tokenizer.decode(summary_ids[0], skip_special_tokens=True)
         
         if count <= 2: 
@@ -71,12 +71,18 @@ def run_llm_tasks(df):
     gen_tokenizer = AutoTokenizer.from_pretrained(gen_model_name)
     gen_model = AutoModelForSeq2SeqLM.from_pretrained(gen_model_name).to(device)
 
-    prompt = f"Respond politely and professionally as a customer service representative to this customer review: '{target_review}'"
-    
+    prompt = (
+        f"You are a customer service representative. "
+        f"Write a polite and professional response to the following customer review. "
+        f"Acknowledge their experience and offer help if needed.\n\n"
+        f"Customer review: {target_review[:300]}\n\n"  
+        f"Customer service response:"
+    )
+
     print("Generating AI Response...")
-    inputs = gen_tokenizer(prompt, return_tensors="pt").to(device)
+    inputs = gen_tokenizer(prompt, return_tensors="pt", max_length=512, truncation=True).to(device)
     # Generate the response
-    response_ids = gen_model.generate(inputs["input_ids"], max_length=100)
+    response_ids = gen_model.generate(inputs["input_ids"], max_new_tokens=150, num_beams=4, no_repeat_ngram_size=3, early_stopping=True)
     response_text = gen_tokenizer.decode(response_ids[0], skip_special_tokens=True)
     
     print(f"\nAI CUSTOMER SERVICE REPLY:\n{response_text}")
