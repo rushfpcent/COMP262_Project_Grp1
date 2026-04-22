@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 import os
 
-# Importing your existing Phase 1 modules
+# Importing modules
 from loader import load_data
 from basic_preprocess import preprocess_data
 
@@ -17,13 +17,13 @@ def prepare_phase2_data(file_path):
     # 1. Load the dataset
     df_raw = load_data(path=file_path)
 
-    # 2. Re-use your Phase 1 preprocessing
+    # 2. Re-use same phase 1 preprocessing
     df_clean = preprocess_data(df_raw)
 
-    # 3. Handle the Rubric Size Constraint Safely
+    # 3. Handle Size Constraint 
     available_rows = len(df_clean)
     print(f"\nNOTE: The cleaned dataset only has {available_rows} unique reviews.")
-    print("Using all available reviews instead of sampling 2000+.")
+    print("Using all available reviews.")
     df_sample = df_clean.copy()
 
     # 4. Stratified 70/30 Split
@@ -57,12 +57,12 @@ def prepare_phase2_data(file_path):
 
 if __name__ == "__main__":
     current_dir = os.path.dirname(__file__)
-    # Pointed directly to your 5-core file
+    # Pointed to full dataset
     FULL_DATA_PATH = os.path.join(current_dir, "Data", "AMAZON_FASHION.json")
     
     # Run the pipeline
     X_train, X_test, y_train, y_test, df_phase2, test_text = prepare_phase2_data(FULL_DATA_PATH)
     
     print(f"\n{SEPARATOR}")
-    print("Phase 2 Data Prep Complete. Ready for Machine Learning!")
+    print("Phase 2 Data Prep Complete.")
     print(SEPARATOR)

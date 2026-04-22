@@ -3,7 +3,7 @@ import os
 import torch
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-# Import your Phase 2 prep function
+# Import Phase 2 prep function
 from phase2_prep import prepare_phase2_data
 
 SEPARATOR = "=" * 64

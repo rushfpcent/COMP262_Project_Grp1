@@ -4,7 +4,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 import os
 
-# Import the data preparation pipeline we just built
+# Import the data preparation pippieline
 from phase2_prep import prepare_phase2_data
 
 SEPARATOR = "=" * 64
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     current_dir = os.path.dirname(__file__)
     FULL_DATA_PATH = os.path.join(current_dir, "Data", "AMAZON_FASHION.json")
     
-    # 1. Get the prepared TF-IDF data from the previous script
+    # 1. Get the prepared TF-IDF data
     X_train_tfidf, X_test_tfidf, y_train, y_test, df_sample, X_test_text = prepare_phase2_data(FULL_DATA_PATH)
     
     # 2. Train and Evaluate the ML Models
